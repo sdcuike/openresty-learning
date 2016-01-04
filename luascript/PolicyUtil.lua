@@ -31,7 +31,7 @@ _M.getPolicy = function(includeUri)
     --
 
     local version = headers[versioncode]
-    if not verson then
+    if not version then
         logUtil.logError("failed to get versioncode")
         return nil
     end

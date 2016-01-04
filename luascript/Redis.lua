@@ -22,12 +22,11 @@ local logUtil = require("luascript.Util")
 _M.new = function(self, conf)
     self.host       = conf.host
     self.port       = conf.port
-    self.uds        = conf.uds
     self.timeout    = conf.timeout
-    self.dbid       = conf.dbid
     self.poolsize   = conf.poolsize
     self.idletime   = conf.idletime
     self.passwd     = conf.passwd
+    self.dbid       = conf.dbid
 
     local red = redis:new()
     return setmetatable({redis = red}, { __index = _M } )
@@ -35,17 +34,18 @@ end
 
 
 _M.connectdb = function(self)
-
-    local uds   = self.uds
     local host  = self.host
     local port  = self.port
-    local dbid  = self.dbid
     local red   = self.redis
 
-    if not uds and not (host and port) then
-        return nil, 'no uds or tcp avaliable provided'
+    if  not (host and port) then
+        return nil, 'no  tcp avaliable provided'
     end
-    if not dbid then dbid = 0 end
+
+    if not dbid then
+        dbid = 0
+    end
+
 
     local timeout   = self.timeout 
     if not timeout then 
@@ -54,10 +54,7 @@ _M.connectdb = function(self)
     red:set_timeout(timeout)
 
     local ok, err 
-    if uds then
-        ok, err = red:connect('unix:'..uds)
-        if ok then return red:select(dbid) end
-    end
+
 
     if host and port then
         ok, err = red:connect(host, port)
@@ -73,6 +70,7 @@ _M.connectdb = function(self)
     end
 
     return ok, err
+
 end
 
 _M.keepalivedb = function(self)
