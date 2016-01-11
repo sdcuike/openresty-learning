@@ -23,22 +23,10 @@ server_current_weigth.c = 0
 --]]
 
 
-local server_current_weigth
-
-_M.get = function(server_effecitve_weight)
+_M.get = function(server_current_weigth,server_effecitve_weight)
     local total = 0
     local max_weight = 0
     local max_weight_server_index = "a"
-
-    --  TODO:redis路由信息更新更新server_current_weigth
-    if not server_current_weigth then
-        server_current_weigth = {}
-        print("init server_current_weigth")
-        for k, v in pairs(server_effecitve_weight) do
-            server_current_weigth[k] = 0
-        end
-    end
-
 
     for k, v in pairs(server_current_weigth) do
         server_current_weigth[k] = server_current_weigth[k] + server_effecitve_weight[k]
@@ -49,24 +37,9 @@ _M.get = function(server_effecitve_weight)
             max_weight_server_index = k
         end
     end
-
-
-    --
-    for k, v in pairs(server_current_weigth) do
-        print("befor:" .. k .. server_current_weigth[k])
-    end
-    --
-    print(total)
-
-
+    
     server_current_weigth[max_weight_server_index] = server_current_weigth[max_weight_server_index] - total
-
-
-    --
-    for k, v in pairs(server_current_weigth) do
-        print("after:" .. k .. server_current_weigth[k])
-    end
-    --
+    
     return max_weight_server_index
 
 end
