@@ -30,7 +30,7 @@ _M.get = function(server_effecitve_weight)
     local max_weight = 0
     local max_weight_server_index = "a"
 
-    --TODO:redis路由信息更新更新server_current_weigth
+    --  TODO:redis路由信息更新更新server_current_weigth
     if not server_current_weigth then
         server_current_weigth = {}
         print("init server_current_weigth")
