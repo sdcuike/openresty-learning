@@ -5,6 +5,7 @@
 -- Time: 下午4:09
 --
 
+--[[  黑名单  --]]
 
 local modulename = "BlacklistUtil"
 local _M = {}

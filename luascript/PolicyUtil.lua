@@ -32,7 +32,7 @@ _M.getPolicy = function(includeUri)
 
     local version = headers[versioncode]
     if not version then
-        logUtil.logError("failed to get versioncode")
+        ngx.log(ngx.ERR, "[[".."failed to get versioncode from http header".."]]")
         return nil
     end
     

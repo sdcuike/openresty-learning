@@ -2,7 +2,10 @@
 -- Created by IntelliJ IDEA.
 -- User: sdcuike
 -- Date: 2016-1-8
--- Nginx的负载均衡 - 加权轮询 (Weighted Round Robin)  
+--
+
+--[[  Nginx的负载均衡 - 加权轮询 (Weighted Round Robin)  -> TODO:  权重选择路由,健康动态检查 --]]
+
 
 local modulename = "WeightedRoundRobin"
 local _M = {}

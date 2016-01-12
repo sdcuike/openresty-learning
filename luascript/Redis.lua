@@ -16,7 +16,6 @@ _M._VERSION = '0.0.1'
 
 
 local redis = require('resty.redis')
-local logUtil = require("luascript.Util")
 
 
 _M.new = function(self, conf)
@@ -29,7 +28,9 @@ _M.new = function(self, conf)
     self.dbid       = conf.dbid
 
     local red = redis:new()
+
     return setmetatable({redis = red}, { __index = _M } )
+
 end
 
 
@@ -61,7 +62,7 @@ _M.connectdb = function(self)
         if ok then
             local auth, error = red:auth(self.passwd)
             if not auth then
-                logUtil.logError("failed to authenticate: "..error)
+                ngx.log(ngx.ERR, "[[".."failed to authenticate: "..error.."]]")
                 return nil,error
             end
 
@@ -86,7 +87,7 @@ end
 _M.close = function(self)
     local ok, err = self.redis:close()
     if not ok then
-        logUtil.logError("failed to close:"..err)
+        ngx.log(ngx.ERR, "[[".."failed to close:"..err.."]]")
     end
 end
 

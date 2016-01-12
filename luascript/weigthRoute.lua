@@ -6,6 +6,8 @@
 -- To change this template use File | Settings | File Templates.
 --
 
+--[[  根据权重路由请求   --]]
+
 
 local redisUti = require("luascript.Redis")
 local redisConfig  = require("luascript.RedisInit")
@@ -17,6 +19,8 @@ local current_weigtht_lock = resty_lock:new("my_lock")
 
 local wrt = ngx.shared.server_current_weigtht_cache
 
+
+local routForAppName = "routForAppName"     -- redis  哈希（Hashes) 路由信息key
 
 
 -- 更新当前权重 TODO:redis路由信息更新更新server_current_weigth
@@ -48,7 +52,6 @@ end
 --
 
 
-local routForAppName = "routForAppName"
 
 --
 local red = redisUti:new(redisConfig.redisConf)
@@ -82,12 +85,12 @@ ngx.log(ngx.INFO, "[[".."redisHKey:"..redisHKey.."]]")
 local res, err = red.redis:hget(routForAppName,redisHKey)
 
 if not res then
-    ngx.log(ngx.ERR, "[[".."failed to get redisHKey:"..redisHKey.." error:"..err.."]]")
+    ngx.log(ngx.ERR, "[[".."failed to get redisHKey:"..redisHKey.."  from redis, error:"..err.."]]")
     return
 end
 
 if res and res == ngx.null then
-    ngx.log(ngx.ERR,"policyKey:"..redisHKey.." not found ")
+    ngx.log(ngx.ERR,"[[".."policyKey:"..redisHKey.." not found from redis".."]]")
     return
 end
 
@@ -107,7 +110,7 @@ ngx.log(ngx.INFO, tv)
 --
 
 if not routeJson then
-    ngx.log(ngx.ERR,"policyKey have not valid value type:")
+    ngx.log(ngx.ERR,"[[".."policyKey which from redis have not valid value type".."]]")
     return
 end
 
@@ -117,21 +120,21 @@ end
 local elapsed_lock, err_lock = current_weigtht_lock:lock(redisHKey)
 
 if not elapsed_lock then
-    ngx.log(ngx.ERR,"failed to acquire the lock:",err_lock)
+    ngx.log(ngx.ERR,"[[".."failed to acquire the lock:"..err_lock.."]]")
 end
 
 local server_current_weigth = get_server_current_weigth(redisHKey,routeJson)
 
 local ok_unlock, err_unlock = current_weigtht_lock:unlock()
 if not ok_unlock then
-    ngx.log(ngx.ERR,"failed to unlock the lock:",err_unlock)
+    ngx.log(ngx.ERR,"[[".."failed to unlock the lock:"..err_unlock.."]]")
 end
 
 
 --
-ngx.log(ngx.INFO,"befor get destination")
+ngx.log(ngx.INFO,"[[".."befor get destination".."]]")
 for k, v in pairs(server_current_weigth) do
-    ngx.log(ngx.INFO,"key:"..k.." value:"..v)
+    ngx.log(ngx.INFO,"[[".."key:"..k.." value:"..v.."]]")
 end
 --
 
@@ -145,7 +148,7 @@ ngx.var.backend = destination
 --
 ngx.log(ngx.INFO,"after get destination")
 for k, v in pairs(server_current_weigth) do
-    ngx.log(ngx.INFO,"key:"..k.." value:"..v)
+    ngx.log(ngx.INFO,"[[".."key:"..k.." value:"..v.."]]")
 end
 
 --
@@ -154,7 +157,7 @@ end
 local elapsed_lock, err_lock = current_weigtht_lock:lock(redisHKey)
 
 if not elapsed_lock then
-    ngx.log(ngx.ERR,"failed to acquire the lock:",err_lock)
+    ngx.log(ngx.ERR,"[[".."failed to acquire the lock:"..err_lock.."]]")
 end
 
 
@@ -162,13 +165,13 @@ local succ, err, forcible = wrt:set(redisHKey, cjson.encode(server_current_weigt
 
 local ok_unlock, err_unlock = current_weigtht_lock:unlock()
 if not ok_unlock then
-    ngx.log(ngx.ERR,"failed to unlock the lock:",err_unlock)
+    ngx.log(ngx.ERR,"[[".."failed to unlock the lock:"..err_unlock.."]]")
 end
 
 
 
 if not succ then
-    ngx.log(ngx.ERR,"update server_current_weigth cache error:"..err)
+    ngx.log(ngx.ERR,"[[".."update server_current_weigth cache error:"..err.."]]")
 end
 
 
@@ -178,5 +181,5 @@ end
 red:close()
 
 local toUrl = ngx.var.backend
-ngx.log(ngx.INFO,"转发:"..toUrl)
+ngx.log(ngx.INFO,"[[".."转发:"..toUrl.."]]")
 --
