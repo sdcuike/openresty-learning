@@ -31,8 +31,10 @@ check = function(premature)
     end
 end
 
+
 local ok, err = ngx.timer.at(delay, check)
+
 if not ok then
-    log(ERR, "failed to create timer: ", err)
+    ngx.log(ERR, "failed to create timer: ", err)
     return
 end
